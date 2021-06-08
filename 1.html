@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1.0">
+ <title>打磚塊小遊戲</title>
+ <style>
+ #box{
+  width: 600px;height: 650px;border: 5px solid rgb(168,139,8);
+  position: relative;left: 500px;
+  background:linear-gradient(rgb(19,192,120),rgb(47,32,114));
+ }
+ #ball{
+  width: 20px;height: 20px;border-radius: 10px;
+  background-color: white;position: absolute;
+  top: 560px;box-shadow: 0px 0px 3px 3px aqua;
+ }
+ #btn{
+  
+  width: 150px;height: 90px;position: fixed;left: 730px;top: 350px;
+  border-radius: 10px;font-size: 24px;cursor: pointer;
+ }
+ #slider{
+  width: 120px;height: 20px;background-color: rgb(168,8);position: absolute;
+  top: 585px;border-radius: 10px;box-shadow: 0px 0px 2px 2px red;cursor: pointer;
+ }
+ #brick div{
+  width: 98px;height: 20px;float: left;border: 1px solid black;
+ }
+ #tip{
+  width: 280px;position:fixed;top: 100px;left: 150px;
+  border: 1px solid black;text-indent: 2em;padding: 10px;border-radius: 20px;
+ }
+ #grade{
+  width: 180px;position:fixed;top: 100px;left: 1150px;
+  border: 1px solid black;text-indent: 2em;padding: 10px;border-radius: 20px;
+ }
+ #grade h3{
+  font-weight: 500;
+ }
+ </style>
+</head>
+<body>
+ <div id="box">
+ <div id="ball"></div>
+ <div id="slider"></div>
+ <div id="brick"></div>
+ </div>
+ <div id="tip">
+ <h1>提示</h1>
+ <p>點選按鈕開始遊戲</p>
+ <p>方法1：使用滑鼠按住滑塊，左右拖動，反彈小球</p>
+ <p>方法2：使用鍵盤“左”“右”方向鍵控制滑塊移動，按住快速移動</p>
+ <p>小球觸碰到底部為失敗</p>
+ <p>清空所有方塊遊戲勝利</p>
+ </div>
+ <div id="grade">
+ <h3>遊戲強度：</h3>
+ <h2>XXX</h2>
+ <h3>得分:</h3>
+ <h1>00</h1>
+ </div>
+ <button id="btn">開始遊戲</button>
+
+
+ <script>
+ var box = document.getElementById("box");
+ var ball = document.getElementById("ball");
+ var btn = document.getElementById("btn");
+ var slider = document.getElementById("slider")
+ var obrick = document.getElementById("brick")
+ var brickArr = obrick.getElementsByTagName("div")
+ var grade = document.getElementById("grade")
+ var rank = grade.children[1]
+ var score = grade.children[3]
+ var sco = 0;
+ var timer;
+ var isRunning = false;
+ var speedX = rand(3,12);
+ var speedY = -rand(3,12);
+ var num =speedX-speedY;
+ console.log(num)
+ switch(num){
+  case 6:case 7:case 8:
+  rank.innerHTML="簡單";
+  break;
+  case 9:case 10:case 11:
+  rank.innerHTML="一般";
+  break;
+  case 12:case 13:case 14:
+  rank.innerHTML="中等";
+  break;
+  case 15:case 16:case 17:
+  rank.innerHTML="難"
+  break;
+  case 18:case 19:case 20:
+  rank.innerHTML="很難"
+  slider.style.width = 100+"px";
+  break;
+  case 21:case 22:
+  rank.innerHTML="特別難"
+  slider.style.width = 80+"px";
+  break;
+  case 23:case 24:
+  rank.innerHTML="哭了"
+  slider.style.width = 60+"px";
+  break;
+ }
+
+ //隨機生成小球與滑塊位置
+ var beginGo = rand(100,500)
+ ball.style.left = beginGo +40 +"px"
+ slider.style.left = beginGo +"px"
+
+ //開始按鈕點選事件
+ btn.onclick = function(){
+  btn.style.display="none";
+  isRunning = true;
+  clearInterval(timer);
+  timer = setInterval(function(){
+  //獲取小球初始位置
+  var ballLeft = ball.offsetLeft;
+  var ballTop = ball.offsetTop;
+
+  //獲取小球運動之後位置
+  var nextleft = ballLeft + speedX;
+  var nexttop = ballTop + speedY;
+
+  //水平邊界判斷，當小球的left值小於容器左邊界或者大於容器右邊界時，將水平方向速度取反
+  if(nextleft<=0||nextleft>=box.offsetWidth-ball.offsetWidth-10){
+  speedX=-speedX;
+  }
+  //垂直邊界判斷，當小球的top值小於容器上邊界時，將垂直方向速度取反
+  if(nexttop<=0){
+  speedY=-speedY;
+  }
+  //當小球觸碰到下邊界時，提示“遊戲失敗”，重新重新整理頁面
+  if(nexttop>box.offsetHeight-ball.offsetHeight){
+  location.reload();
+  alert("You were dead！")
+  }
+  
+  //將運動後的位置重新賦值給小球
+  ball.style.left = nextleft+"px";
+  ball.style.top= nexttop+"px";
+
+  //小球與滑塊的碰撞檢測
+  if(knock(ball,slider)){
+  speedY=-speedY;
+  }
+
+  //小球與方塊的碰撞檢測
+  for(var j=0; j<brickArr.length;j++){
+  if(knock(brickArr[j],ball)){
+   speedY=-speedY
+   obrick.removeChild(brickArr[j]);
+   sco++;
+   score.innerHTML=sco;
+   break;
+  }
+  }
+
+  //當容器中方塊數量為0時，宣佈“遊戲勝利”，重新整理頁面
+  if(brickArr.length<=0){
+  location.reload();
+  alert("You win!")
+  }
+ },20)
+ }
+
+ //滑鼠控制滑塊
+ slider.onmousedown = function(e){
+  var e = e||window.event;
+  //獲取滑塊初始位置
+  var offsetX = e.clientX - slider.offsetLeft;
+  if(isRunning){
+  document.onmousemove = function(e){
+  var e = e||window.event;
+  var l =e.clientX-offsetX;
+  if(l<=0){
+   l=0;
+  }
+  if(l>=box.offsetWidth-slider.offsetWidth-10){
+   l=box.offsetWidth-slider.offsetWidth-10 ;
+  }
+  slider.style.left = l + "px";
+  }
+  }
+ }
+ document.onmouseup = function(){
+  document.onmousemove = null;
+ }
+
+ //按鍵控制滑塊
+ document.onkeydown = function(e){
+  var e = e||window.event;
+  var code = e.keyCode || e.which;
+  var offsetX = slider.offsetLeft;
+  if(isRunning){
+  switch(code){
+  case 37:
+   if(offsetX<=0){
+   slider.style.left=0
+   break;
+   }
+   slider.style.left = offsetX*4/5 + "px";
+   break;
+  case 39:
+  if(offsetX>=box.offsetWidth-slider.offsetWidth-10){
+   slider.style.left=box.offsetWidth-slider.offsetWidth;
+   break;
+   }
+  slider.style.left = (box.offsetWidth-slider.offsetWidth-offsetX)/5 +offsetX + "px";
+  break;
+  }
+  }
+  
+ }
+
+ 
+ createBrick(72)
+
+ //容器內建立方塊
+ function createBrick(n){
+  var oBrick = document.getElementById("brick")
+  //在大盒子brick中插入n個div方塊，並給予隨機顏色
+  for(var i = 0; i<n; i++){
+  var node = document.createElement("div");
+  node.style.backgroundColor= color();
+  oBrick.appendChild(node);
+  }
+  //獲取所有的方塊
+  var brickArr = obrick.getElementsByTagName("div")
+  //根據每個方塊當前所在位置，將left與top值賦給方塊
+  for(var i=0;i<brickArr.length;i++){
+  brickArr[i].style.left = brickArr[i].offsetLeft+"px";
+  brickArr[i].style.top = brickArr[i].offsetTop+"px";
+  }
+  //將所有方塊設定成絕對定位，注意這一步與上一步順序不能調換
+  for(var i =0;i<brickArr.length;i++){
+  brickArr[i].style.position="absolute";
+  }
+ }
+
+ //隨機生成顏色
+ function color(){
+  var result= "#";
+  for(var i=0;i<6;i++){
+  result += rand(0,15).toString(16)
+  // 把十進位制的數字變成十六進位制的字串:0 1 ...9 a b c d f
+ }
+ return result;
+ }
+ //隨機數生成
+ function rand(n,m){
+  return n+parseInt(Math.random()*(m-n+1));
+ }
+ //碰撞檢測函式
+ function knock(node1,node2){
+  var l1 = node1.offsetLeft;
+  var r1 = node1.offsetLeft + node1.offsetWidth;
+  var t1 = node1.offsetTop;
+  var b1 = node1.offsetTop+node1.offsetHeight;
+  var l2 = node2.offsetLeft;
+  var r2 = node2.offsetLeft + node2.offsetWidth;
+  var t2 = node2.offsetTop;
+  var b2 = node2.offsetTop+node2.offsetHeight;
+  if(l2>r1||r2<l1||t2>b1||b2<t1){
+  return false;
+  }else{
+  return true;
+  }
+ }
+
+ </script>
+</body>
+</html>
