@@ -12,11 +12,11 @@ const DIRECTION = Object.freeze({
   DOWN: "DOWN"
 });
 
-// Object.freeze 表示冻结一个对象（对象的属性不能增删改，对象的原型不能改变）
-// 定义了单元格的类型（三种，空单元格，食物单元格）和方向的类型（上下左右无）
+// Object.freeze 表示凍結一個對象（對象的屬性不能增刪改，對象的原型不能改變）
+// 定義了單元格的類型（三種，空單元格，食物單元格）和方向的類型（上下左右無）
 
 
-// [单元格：传入三个变量，返回一个单元格对象（具有行列和类型属性）]
+// [單元格：傳入三個變量，返回一個單元格對象（具有行列和類型屬性）]有行列和类型属性）]
 function Cell(row, column, cellType) {
   return {
     row: row,
@@ -25,7 +25,7 @@ function Cell(row, column, cellType) {
   }
 }
 
-// [蛇 对象，传入单元格，开始的长度，和背景画布 ]
+// [蛇 對象，傳入單元格，開始的長度，和背景畫布 ]
 function Snake(cell, startingLength, board) {
 
   // 设置传入的单元格属性是蛇
@@ -210,7 +210,7 @@ function Game(snake, board) {
         direction = DIRECTION.NONE;
         gameOver = true;
         modal.style.display = "block";
-        let message = "Game Over! You scored " + score + "  points!";
+        let message = "遊戲結束! 你得了 " + score + "  分!";
         document.getElementById("message").innerHTML = message;
         // 设置界面的提示信息
       } else {
