@@ -210,7 +210,7 @@ function Game(snake, board) {
         direction = DIRECTION.NONE;
         gameOver = true;
         modal.style.display = "block";
-        let message = "遊戲結束! 你得了 " + score + "  分!";
+        let message = "Game Over! You scored" + score + "points!";
         document.getElementById("message").innerHTML = message;
         // 设置界面的提示信息
       } else {
